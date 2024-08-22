@@ -1,0 +1,15 @@
+### Login untuk mendapatkan token JWT
+POST http://localhost:2000/auth/login
+Content-Type: application/json
+
+{
+  "username": "seller1",
+  "password": "password123"
+}
+
+
+
+### Menggunakan token JWT untuk mengakses rute terlindungi
+GET http://localhost:2000/protected-route
+Authorization: Bearer 
+

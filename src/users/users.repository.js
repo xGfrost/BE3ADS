@@ -1,10 +1,12 @@
 const prisma = require("../db");
+const bcrypt = require('bcryptjs');
 
 const insert = async (userdata) => {
+    const salt = bcrypt.genSalt(10);
     const user = await prisma.users.create({
         data:{
             username: userdata.username,
-            password: userdata.password,
+            password: bcrypt.hash(userdata.password, salt),
             email: userdata.email,
             role: userdata.role,
         }
