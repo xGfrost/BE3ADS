@@ -1,15 +1,7 @@
 const prisma = require("../db");
+const { deletecart } = require("../carts/carts.service");
 
-const insert = async (orderdata) => {
-    const order = await prisma.orders.create({
-        data:{
-            customer_id: parseInt(orderdata.customer_id),
-            total_price: orderdata.total_price,
-            status: orderdata.status,
-        }
-    })
-    return order;
-}
+
 
 const edit = async (id, orderdata) => {
     const order = await prisma.orders.update({
@@ -17,38 +9,22 @@ const edit = async (id, orderdata) => {
             id: parseInt(id)
         },
         data:{
-            customer_id: parseInt(orderdata.customer_id),
-            total_price: orderdata.total_price,
             status: orderdata.status,
         }
     })
+    await deletecart(id)
     return order;
 }
 
-const deleteid = async (id) => {
-    await prisma.orders.delete({
+const findallbyidcustomer = async (customer_id) => {
+    const order = await prisma.orders.findUnique({
         where:{
-            id: parseInt(id)
+            customer_id:customer_id,
         }
-    });
-}
-
-const findall = async (total_price) => {
-    const order = await prisma.orders.findMany({
-        // where:{
-        //     total_price:{
-        //         contains: total_price,
-        //     }
-        // },
-        // include:{
-        //     order_items:true,
-        // }
     })
     return order;
 }
 module.exports ={
-    insert,
     edit,
-    deleteid,
-    findall,
+    findallbyidcustomer,
 }
