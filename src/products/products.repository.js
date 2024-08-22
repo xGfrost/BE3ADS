@@ -42,6 +42,9 @@ const findall = async (name) => {
             name:{
                 contains: name,
             }
+        },
+        include:{
+            order_items:true,
         }
     })
     return product;
@@ -51,6 +54,9 @@ const findallbyid = async (id) => {
     const product = await prisma.products.findUnique({
         where:{
             id: id
+        },
+        include:{
+            order_items:true,
         }
     })
     return product
