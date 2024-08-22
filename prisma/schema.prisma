@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model carts {
+  id          Int      @id @default(autoincrement())
+  customer_id Int
+  product_id  Int
+  quantity    Int
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  users       users    @relation(fields: [customer_id], references: [id], onUpdate: Restrict, map: "carts_ibfk_1")
+  products    products @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "carts_ibfk_2")
+
+  @@index([customer_id], map: "customer_id")
+  @@index([product_id], map: "product_id")
+}
+
+model order_items {
+  id         Int      @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  price      Decimal  @db.Decimal(10, 2)
+  orders     orders   @relation(fields: [order_id], references: [id], onUpdate: Restrict, map: "order_items_ibfk_1")
+  products   products @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "order_items_ibfk_2")
+
+  @@index([order_id], map: "order_id")
+  @@index([product_id], map: "product_id")
+}
+
+model orders {
+  id          Int           @id @default(autoincrement())
+  customer_id Int
+  total_price Decimal       @db.Decimal(10, 2)
+  status      orders_status @default(pending)
+  created_at  DateTime      @default(now()) @db.Timestamp(0)
+  order_items order_items[]
+  users       users         @relation(fields: [customer_id], references: [id], onUpdate: Restrict, map: "orders_ibfk_1")
+
+  @@index([customer_id], map: "customer_id")
+}
+
+model products {
+  id          Int           @id @default(autoincrement())
+  seller_id   Int
+  name        String        @db.VarChar(100)
+  description String?       @db.Text
+  price       Decimal       @db.Decimal(10, 2)
+  stock       Int
+  created_at  DateTime      @default(now()) @db.Timestamp(0)
+  carts       carts[]
+  order_items order_items[]
+  users       users         @relation(fields: [seller_id], references: [id], onUpdate: Restrict, map: "products_ibfk_1")
+
+  @@index([seller_id], map: "seller_id")
+}
+
+model users {
+  id         Int        @id @default(autoincrement())
+  username   String     @db.VarChar(50)
+  password   String     @db.VarChar(255)
+  email      String     @unique(map: "email") @db.VarChar(100)
+  role       users_role
+  created_at DateTime   @default(now()) @db.Timestamp(0)
+  carts      carts[]
+  orders     orders[]
+  products   products[]
+}
+
+enum orders_status {
+  pending
+  completed
+  cancelled
+}
+
+enum users_role {
+  seller
+  customer
+}
